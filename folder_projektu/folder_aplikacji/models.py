@@ -26,11 +26,26 @@ class RATE(models.IntegerChoices):
     NINE = 9, "9"
     TEN = 10, "10"
 
+class MONTHS(models.IntegerChoices):
+    JANUARY = 1, "January"
+    FEBRUARY = 2, "February"
+    MARCH = 3, "March"
+    APRIL = 4, "April"
+    MAY = 5, "May"
+    JUNE = 6, "June"
+    JULY = 7, "July"
+    AUGUST = 8, "August"
+    SEPTEMBER = 9, "September"
+    OCTOBER = 10, "October"
+    NOVEMBER = 11, "November"
+    DECEMBER = 12, "December"
+
 class Movie(models.Model):
     Name = models.CharField(max_length=60)
-    Genre = models.CharField(max_length=3, choices=GENRE) 
+    Genre = models.CharField(max_length=3, choices=GENRE)
+    Date_watched = models.IntegerField(choices = MONTHS.choices, default=MONTHS.JANUARY)
     Rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
-    Review = models.TextField(blank=True)
+    Review = models.CharField(max_length=20000, blank=True)
 
     def __str__(self):
         return f"{self.Name}"
@@ -38,9 +53,10 @@ class Movie(models.Model):
 class Series(models.Model):
     Name = models.CharField(max_length=60)
     Genre = models.CharField(max_length=3, choices=GENRE)
+    Date_watched = models.IntegerField(choices = MONTHS.choices, default=MONTHS.JANUARY)
     Episodes_watched = models.IntegerField()
     Rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
-    Review = models.TextField(blank=True)
+    Review = models.CharField(max_length=20000, blank=True)
 
     def __str__(self):
         return f"{self.Name}"
