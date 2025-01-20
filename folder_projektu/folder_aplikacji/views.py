@@ -2,67 +2,113 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Movie, Series
-from .serializers import MovieSerializer, SeriesSerializer
+from .models import Genre, Movie, Series
+from .serializers import genreSerializer, movieSerializer, seriesSerializer
 
-@api_view(['GET'])
-def Movie_list(request):
+@api_view(['GET', 'POST'])  
+def movie_list(request):
     if request.method == 'GET':
-        persons = Movie.objects.all()
-        serializer = MovieSerializer(Movie, many=True)
+        movie = Movie.objects.all()
+        serializer = movieSerializer(movie, many=True)
         return Response(serializer.data)
 
+    elif request.method == 'POST': 
+        serializer = movieSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def Movie_detail(request, pk):
+def movie_detail(request, pk):
     try:
-        Movie = Movie.objects.get(pk=pk)
-    except Movie.DoesNotExist:
+        movie = Movie.objects.get(pk=pk)
+    except Movie.DoesNotExist:  
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        Movie = Movie.objects.get(pk=pk)
-        serializer = MovieSerializer(Movie)
+        serializer = movieSerializer(movie)
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = MovieSerializer(Movie, data=request.data)
+        serializer = movieSerializer(movie, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        Movie.delete()
+        movie.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-@api_view(['GET'])
-def Series_list(request):
+@api_view(['GET', 'POST']) 
+def series_list(request):
     if request.method == 'GET':
-        Movie = Movie.objects.all()
-        serializer = MovieSerializer(Movie, many=True)
+        series = Series.objects.all()
+        serializer = seriesSerializer(series, many=True)
         return Response(serializer.data)
 
+    elif request.method == 'POST':  
+        serializer = seriesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def Series_detail(request, pk):
+def series_detail(request, pk):
     try:
-        Series = Series.objects.get(pk=pk)
-    except Series.DoesNotExist:
+        series = Series.objects.get(pk=pk)
+    except Series.DoesNotExist: 
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        Series = Series.objects.get(pk=pk)
-        serializer = SeriesSerializer(Series)
+        serializer = seriesSerializer(series)
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = SeriesSerializer(Series, data=request.data)
+        serializer = seriesSerializer(series, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        Series.delete()
+        series.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'POST'])  
+def genre_list(request):
+    if request.method == 'GET':
+        genres = Genre.objects.all()
+        serializer = genreSerializer(genres, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST': 
+        serializer = genreSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def genre_detail(request, pk):
+    try:
+        genre = Genre.objects.get(pk=pk)
+    except Genre.DoesNotExist: 
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = genreSerializer(genre)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = genreSerializer(genre, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        genre.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
