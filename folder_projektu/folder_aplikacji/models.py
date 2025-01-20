@@ -1,9 +1,17 @@
 from django.db import models
 
 class Genre(models.Model):
-    id = models.CharField(max_length=5, primary_key=True)
+    id = models.CharField(max_length=5, primary_key=True, unique=True)
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+    
+class Director(models.Model):
+    name = models.CharField(max_length=30, blank = False, null = False)
+    surname = models.CharField(max_length=50, blank=False, null=False)
+    year_born = models.IntegerField(blank = True, null = True)
 
     def __str__(self):
         return self.name
@@ -54,3 +62,4 @@ class Series(models.Model):
 
     def __str__(self):
         return self.name
+    

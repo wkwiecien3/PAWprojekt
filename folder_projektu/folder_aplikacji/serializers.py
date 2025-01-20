@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Movie, Series, Genre
+from .models import Director, Movie, Series, Genre
 
 class genreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,5 +57,21 @@ class seriesSerializer(serializers.ModelSerializer):
         instance.episodes_watched = validated_data.get('episodes_watched', instance.episodes_watched)
         instance.rating = validated_data.get('rating', instance.rating)
         instance.review = validated_data.get('review', instance.review)
+        instance.save()
+        return instance
+    
+class directorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Director
+        fields = ['name', 'surname', 'year_born']
+
+    def create(self, validated_data):
+        director = Director.objects.create(**validated_data)
+        return director
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.surname = validated_data.get('surname', instance.surname)
+        instance.year_born = validated_data.get('year_born', instance.year_born)
         instance.save()
         return instance

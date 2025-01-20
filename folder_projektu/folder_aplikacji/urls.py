@@ -8,4 +8,6 @@ urlpatterns = [
     path('series/<int:pk>/', views.series_detail),
     path('genres/', views.genre_list),
     path('genres/<int:pk>/', views.genre_detail),
+    path('director/', views.director_list),
+    path('director/<int:pk>/', views.director_detail),
 ]
