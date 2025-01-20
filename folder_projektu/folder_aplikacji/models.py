@@ -1,19 +1,21 @@
 from django.db import models
 
-GENRE = (
-    ('F', 'Fantasy'),
-    ('R', 'Romance'),
-    ('D', 'Drama'),
-    ('C', 'Comedy'),
-    ('H', 'Horror'),
-    ('A', 'Action'),
-    ('M', 'Musical'),
-    ('T', 'Thriller'),
-    ('DOC', 'Documentary'),
-    ('SF', 'ScienceFiction'),
-    ('AM', 'Animation'),
-    ('AD', "Adventure"),
-)
+class Genre(models.Model):
+    id = models.CharField(max_length=5, primary_key=True, unique=True)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+    
+class Director(models.Model):
+    name = models.CharField(max_length=30, blank = False, null = False)
+    surname = models.CharField(max_length=50, blank=False, null=False)
+    year_born = models.IntegerField(blank = True, null = True)
+
+    def __str__(self):
+        return self.name
+
 class RATE(models.IntegerChoices):
     ONE = 1, "1"
     TWO = 2, "2"
@@ -41,22 +43,23 @@ class MONTHS(models.IntegerChoices):
     DECEMBER = 12, "December"
 
 class Movie(models.Model):
-    Name = models.CharField(max_length=60)
-    Genre = models.CharField(max_length=3, choices=GENRE)
-    Date_watched = models.IntegerField(choices = MONTHS.choices, default=MONTHS.JANUARY)
-    Rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
-    Review = models.CharField(max_length=20000, blank=True)
+    name = models.CharField(max_length=60)
+    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)    
+    date_watched = models.IntegerField(choices=MONTHS.choices, default=MONTHS.JANUARY)
+    rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
+    review = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.Name}"
-    
+        return self.name
+
 class Series(models.Model):
-    Name = models.CharField(max_length=60)
-    Genre = models.CharField(max_length=3, choices=GENRE)
-    Date_watched = models.IntegerField(choices = MONTHS.choices, default=MONTHS.JANUARY)
-    Episodes_watched = models.IntegerField()
-    Rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
-    Review = models.CharField(max_length=20000, blank=True)
+    name = models.CharField(max_length=60)
+    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)
+    date_watched = models.IntegerField(choices=MONTHS.choices, default=MONTHS.JANUARY)
+    episodes_watched = models.IntegerField()
+    rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
+    review = models.TextField(blank=True)
 
     def __str__(self):
-        return f"{self.Name}"
+        return self.name
+    
