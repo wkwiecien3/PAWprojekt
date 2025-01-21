@@ -10,4 +10,8 @@ urlpatterns = [
     path('genres/<int:pk>/', views.genre_detail),
     path('director/', views.director_list),
     path('director/<int:pk>/', views.director_detail),
+    path('studio/', views.studio_list),
+    path('studio/<int:pk>/', views.studio_detail),
+    path('director/', views.director_list),
+    path('director/<int:pk>/', views.director_detail),
 ]

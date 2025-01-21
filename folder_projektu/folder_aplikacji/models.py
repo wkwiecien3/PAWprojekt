@@ -15,6 +15,14 @@ class Director(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Studio(models.Model):
+    name = models.CharField(max_length=100, blank = False, null = False)
+    year_of_establishment = models.IntegerField(blank = True, null = True)
+    location = models.CharField(max_length=80, blank = False, null = False)
+
+    def __str__(self):
+        return self.name
 
 class RATE(models.IntegerChoices):
     ONE = 1, "1"
@@ -44,7 +52,9 @@ class MONTHS(models.IntegerChoices):
 
 class Movie(models.Model):
     name = models.CharField(max_length=60)
-    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)    
+    genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)   
+    studio = models.ForeignKey(Studio, on_delete=models.SET_NULL, null=True, blank=True)
+    director =  models.ForeignKey(Director, on_delete=models.SET_NULL, null=True, blank=True)
     date_watched = models.IntegerField(choices=MONTHS.choices, default=MONTHS.JANUARY)
     rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
     review = models.TextField(blank=True)
@@ -55,10 +65,12 @@ class Movie(models.Model):
 class Series(models.Model):
     name = models.CharField(max_length=60)
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)
+    studio = models.ForeignKey('Studio', on_delete=models.SET_NULL, null=True, blank=True)  
     date_watched = models.IntegerField(choices=MONTHS.choices, default=MONTHS.JANUARY)
     episodes_watched = models.IntegerField()
     rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
     review = models.TextField(blank=True)
+    
 
     def __str__(self):
         return self.name
