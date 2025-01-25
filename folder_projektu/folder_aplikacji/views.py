@@ -1,9 +1,29 @@
+import datetime
+from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from .models import Director, Genre, Movie, Series, Studio
 from .serializers import directorSerializer, genreSerializer, movieSerializer, seriesSerializer, studioSerializer
+from django.contrib.auth import logout
+
+def welcome_view(request):
+    now = datetime.datetime.now()
+    html = f"""
+        <html><body>
+        Hello! </br>
+        Current date and time: {now}.
+        </body></html>"""
+    return HttpResponse(html)
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        logout(request)
+        return Response({"message": "Logged out successfully!"})
 
 @api_view(['GET', 'POST'])  
 def movie_list(request):
@@ -83,7 +103,6 @@ def genre_list(request):
         genres = Genre.objects.all()
         serializer = genreSerializer(genres, many=True)
         return Response(serializer.data)
-
     elif request.method == 'POST': 
         serializer = genreSerializer(data=request.data)
         if serializer.is_valid():

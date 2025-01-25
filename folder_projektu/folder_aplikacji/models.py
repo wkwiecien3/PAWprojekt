@@ -8,6 +8,9 @@ class Genre(models.Model):
     def __str__(self):
         return self.name
     
+    class Meta:
+        ordering = ["name"]
+    
 class Director(models.Model):
     name = models.CharField(max_length=30, blank = False, null = False)
     surname = models.CharField(max_length=50, blank=False, null=False)
@@ -16,6 +19,9 @@ class Director(models.Model):
     def __str__(self):
         return self.name
     
+    class Meta:
+        ordering = ["name"]
+    
 class Studio(models.Model):
     name = models.CharField(max_length=100, blank = False, null = False)
     year_of_establishment = models.IntegerField(blank = True, null = True)
@@ -23,6 +29,9 @@ class Studio(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ["name"]
 
 class RATE(models.IntegerChoices):
     ONE = 1, "1"
@@ -61,6 +70,9 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ["name"]
 
 class Series(models.Model):
     name = models.CharField(max_length=60)
@@ -71,7 +83,9 @@ class Series(models.Model):
     rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
     review = models.TextField(blank=True)
     
-
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ["name"]
     

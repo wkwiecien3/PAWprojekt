@@ -6,6 +6,11 @@ class genreSerializer(serializers.ModelSerializer):
         model = Genre
         fields = ['id', 'name', 'description']
 
+    id = serializers.CharField(required = True)
+
+    def validate_id(self, value):
+        return value.upper()
+
 class movieSerializer(serializers.ModelSerializer):
     genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all())
 
