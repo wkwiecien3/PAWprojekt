@@ -1,6 +1,7 @@
 import datetime
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
@@ -9,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from .models import Director, Genre, Movie, Series, Studio
 from .permissions import CustomDjangoModelPermissions
-from .serializers import directorSerializer, genreSerializer, movieSerializer, seriesSerializer, studioSerializer
+from .serializers import UserRegistrationSerializer, directorSerializer, genreSerializer, movieSerializer, seriesSerializer, studioSerializer
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import permission_required, login_required
 from django.http import HttpResponse, Http404
@@ -34,15 +35,23 @@ class LogoutView(APIView):
         logout(request)
         return Response({"message": "Logged out successfully!"})
 
-@api_view(['GET'])  
+@api_view(['GET', 'POST'])  
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def movie_list(request):
     if request.method == 'GET':
-        movie = Movie.objects.all()
+        movie = Movie.objects.filter(creator = request.user)
         serializer = movieSerializer(movie, many=True)
         return Response(serializer.data)
+    
+    if request.method == 'POST':  
+        serializer = movieSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(creator = request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def movie_detail(request, pk):
     try:
@@ -70,15 +79,9 @@ def movie_update(request, pk):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # elif request.method == 'POST':  
-    #     serializer = movieSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
-@authentication_classes([TokenAuthentication])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def movie_delete(request, pk):
     try:
@@ -107,6 +110,7 @@ def series_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'DELETE'])
+@authentication_classes([TokenAuthentication])
 def series_detail(request, pk):
     try:
         series = Series.objects.get(pk=pk)
@@ -126,7 +130,9 @@ def series_search(request, substring):
     serializer = seriesSerializer(series, many = True)
     return Response(serializer.data)
 
-@api_view(['GET', 'POST'])  
+@api_view(['GET', 'POST'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])  
 def genre_list(request):
     if request.method == 'GET':
         genres = Genre.objects.all()
@@ -141,6 +147,8 @@ def genre_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'DELETE'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def genre_detail(request, pk):
     try:
         genre = Genre.objects.get(pk=pk)
@@ -155,7 +163,9 @@ def genre_detail(request, pk):
         genre.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-@api_view(['GET', 'POST'])  
+@api_view(['GET', 'POST']) 
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated]) 
 def director_list(request):
     if request.method == 'GET':
         director = Director.objects.all()
@@ -170,6 +180,8 @@ def director_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def director_detail(request, pk):
     try:
         director = Director.objects.get(pk=pk)
@@ -191,7 +203,9 @@ def director_detail(request, pk):
         director.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-@api_view(['GET', 'POST'])  
+@api_view(['GET', 'POST'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])  
 def studio_list(request):
     if request.method == 'GET':
         studio = Studio.objects.all()
@@ -206,6 +220,8 @@ def studio_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
 def studio_detail(request, pk):
     try:
         studio = Studio.objects.get(pk=pk)
@@ -233,7 +249,7 @@ def studio_detail(request, pk):
 def movie_list_html(request):
     movies = Movie.objects.all()
     return render(request, 
-                  "folder_aplikacji/movies/list.html", 
+                  "folder_aplikacji/movie/list.html", 
                   {'movies': movies})
 
 def movie_detail_html(request, id):
@@ -242,41 +258,22 @@ def movie_detail_html(request, id):
     except Movie.DoesNotExist:
         raise Http404("Movie with given ID does not exist")
 
-    return render(request, "folder_aplikacji/movies/detail.html", {'movie': movie})
+    return render(request, "folder_aplikacji/movie/detail.html", {'movie': movie})
 
     
-class GenreMemberView(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+@api_view(['GET'])
+def monthly_movies(request):
+    current_month = timezone.now().month
+    movies = Movie.objects.filter(date_watched=current_month, creator = request.user)
+    serializer = movieSerializer(movies, many=True)
+    return Response(serializer.data)
+
     
-    def get(self, request, pk):
-        try:
-            genre = Genre.objects.get(pk=pk)
-        except Genre.DoesNotExist:
-            return Response(status = status.HTTP_404_NOT_FOUND)
-        
-        movie = Movie.objects.filter(genre = genre)
-        serializer = movieSerializer(movie, many = True)
-        return Response(serializer.data)
-    
-class StudioDetail(APIView):
-    authentication_classes = [BasicAuthentication]
-    permission_classes = [IsAuthenticated, CustomDjangoModelPermissions]
-    def get_queryset(self):
-        return Studio.objects.all()
-
-    def get_object(self, pk):
-        try:
-            return Studio.objects.get(pk=pk)
-        except Studio.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        studio = self.get_object(pk)
-        serializer = studioSerializer(studio)
-        return Response(serializer.data)
-
-    def delete(self, request, pk, format=None):
-        studio = self.get_object(pk)
-        studio.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+@api_view(['POST'])
+def register(request):
+    if request.method == 'POST':
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

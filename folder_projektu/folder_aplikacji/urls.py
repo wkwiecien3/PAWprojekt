@@ -19,5 +19,7 @@ urlpatterns = [
     path('api/logout/', views.LogoutView.as_view(), name='api_logout'),
     path("movies_html/", views.movie_list_html),
     path("movies_html/<int:id>/", views.movie_detail_html),
-    path("genre/<int:pk>/members/", views.GenreMemberView.as_view()),
+    path('register/', views.register, name='register'),
+    path('movies/monthly/', views.monthly_movies, name='monthly_movies'),
+
 ]

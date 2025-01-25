@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class RATE(models.IntegerChoices):
     ONE = 1, "1"
@@ -67,6 +68,7 @@ class Movie(models.Model):
     date_watched = models.IntegerField(choices=MONTHS.choices, default=MONTHS.JANUARY)
     rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
     review = models.TextField(blank=True)
+    creator = models.ForeignKey(User, on_delete = models.CASCADE, blank = True, null = True)
 
     def __str__(self):
         return self.name
