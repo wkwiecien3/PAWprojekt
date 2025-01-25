@@ -14,6 +14,8 @@ class genreSerializer(serializers.ModelSerializer):
 class movieSerializer(serializers.ModelSerializer):
     genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all())
 
+    name = serializers.CharField(required = True)
+    
     class Meta:
         model = Movie
         fields = ['name', 'genre', 'studio', 'director', 'date_watched', 'rating', 'review']

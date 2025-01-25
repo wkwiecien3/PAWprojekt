@@ -1,7 +1,12 @@
 from django.contrib import admin
 from .models import Director, Genre, Movie, Series, Studio
 
-admin.site.register(Studio)
+class StudioAdmin(admin.ModelAdmin):
+    list_display = ['name', 'year_of_establishment', 'location']
+    list_filter = ['name']
+
+admin.site.register(Studio, StudioAdmin)
+
 class MovieAdmin(admin.ModelAdmin):
     list_display = ['name', 'genre', 'studio', 'rating']
     list_filter = ['genre']
