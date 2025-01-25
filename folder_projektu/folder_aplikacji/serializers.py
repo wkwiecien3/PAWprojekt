@@ -1,13 +1,21 @@
 from rest_framework import serializers
 from .models import Director, Movie, Series, Genre, Studio
+from django.contrib.auth.models import User
 
 class genreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ['id', 'name', 'description']
 
+    id = serializers.CharField(required = True)
+
+    def validate_id(self, value):
+        return value.upper()
+
 class movieSerializer(serializers.ModelSerializer):
     genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all())
+
+    name = serializers.CharField(required = True)
 
     class Meta:
         model = Movie
@@ -95,3 +103,15 @@ class studioSerializer(serializers.ModelSerializer):
         instance.location = validated_data.get('location', instance.location)
         instance.save()
         return instance
+    
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+    
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password']
+        )
+        return user

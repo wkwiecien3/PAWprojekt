@@ -1,28 +1,5 @@
 from django.db import models
-
-class Genre(models.Model):
-    id = models.CharField(max_length=5, primary_key=True, unique=True)
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.name
-    
-class Director(models.Model):
-    name = models.CharField(max_length=30, blank = False, null = False)
-    surname = models.CharField(max_length=50, blank=False, null=False)
-    year_born = models.IntegerField(blank = True, null = True)
-
-    def __str__(self):
-        return self.name
-    
-class Studio(models.Model):
-    name = models.CharField(max_length=100, blank = False, null = False)
-    year_of_establishment = models.IntegerField(blank = True, null = True)
-    location = models.CharField(max_length=80, blank = False, null = False)
-
-    def __str__(self):
-        return self.name
+from django.contrib.auth.models import User
 
 class RATE(models.IntegerChoices):
     ONE = 1, "1"
@@ -50,6 +27,39 @@ class MONTHS(models.IntegerChoices):
     NOVEMBER = 11, "November"
     DECEMBER = 12, "December"
 
+class Genre(models.Model):
+    id = models.CharField(max_length=5, primary_key=True, unique=True)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ["name"]
+    
+class Director(models.Model):
+    name = models.CharField(max_length=30, blank = False, null = False)
+    surname = models.CharField(max_length=50, blank=False, null=False)
+    year_born = models.IntegerField(blank = True, null = True)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ["name"]
+    
+class Studio(models.Model):
+    name = models.CharField(max_length=100, blank = False, null = False)
+    year_of_establishment = models.IntegerField(blank = True, null = True)
+    location = models.CharField(max_length=80, blank = False, null = False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ["name"]
+
 class Movie(models.Model):
     name = models.CharField(max_length=60)
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)   
@@ -58,9 +68,13 @@ class Movie(models.Model):
     date_watched = models.IntegerField(choices=MONTHS.choices, default=MONTHS.JANUARY)
     rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
     review = models.TextField(blank=True)
+    creator = models.ForeignKey(User, on_delete = models.CASCADE, blank = True, null = True)
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ["name"]
 
 class Series(models.Model):
     name = models.CharField(max_length=60)
@@ -71,7 +85,9 @@ class Series(models.Model):
     rating = models.IntegerField(choices=RATE.choices, default=RATE.ONE)
     review = models.TextField(blank=True)
     
-
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ["name"]
     

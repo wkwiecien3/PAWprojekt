@@ -1,0 +1,13 @@
+{% extends "folder_aplikacji/base.html" %}
+
+{% block title %}{{ movie.name }}{% endblock %}
+
+{% block content %}
+<p>Movie: {{ movie.name }}</p>
+<p>Genre: {{ movie.genre }}</p>
+<p>Studio: {{ movie.studio }}</p>
+<p>Director: {{ movie.director }}</p>
+<p>Date watched: {{ movie.date_watched }}</p>
+<p>Rating: {{ movie.rating }}</p>
+<p>Review: {{ movie.review }}</p>
+{% endblock %}
