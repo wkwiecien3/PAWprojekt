@@ -1,0 +1,17 @@
+{% extends "folder_aplikacji/base.html" %}
+
+{% block title %}series list{% endblock %}
+
+{% block content %}
+<h1><b>Serieses in our base :</b></h1>
+{% for series in series %}
+<h2><p><b>{{ series.name }}</b></p></h2>
+<p>Genre: {{ series.genre }}</p>
+<p>Studio: {{ series.studio }}</p>
+<p>Date watched: {{ series.date_watched }}</p>
+<p>Episodes watched: {{ series.episodes_watched }}</p>
+<p>Rating: {{ series.rating }}</p>
+<p>Review: {{ series.review }}</p>
+<hr>
+{% endfor %}
+{% endblock %}

@@ -45,6 +45,8 @@ def movie_list(request):
         return Response(serializer.data)
     
     if request.method == 'POST':  
+        if not request.user.has_perm('app.add_movie'):
+            raise PermissionDenied("You do not have permission to add a movie.")
         serializer = movieSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save(creator = request.user)
@@ -103,6 +105,8 @@ def series_list(request):
         return Response(serializer.data)
 
     elif request.method == 'POST':  
+        if not request.user.has_perm('app.add_series'):
+            raise PermissionDenied("You do not have permission to add any series.")
         serializer = seriesSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -140,6 +144,8 @@ def genre_list(request):
         return Response(serializer.data)
     
     elif request.method == 'POST': 
+        if not request.user.has_perm('app.add_genre'):
+            raise PermissionDenied("You do not have permission to add a genre.")
         serializer = genreSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -173,6 +179,8 @@ def director_list(request):
         return Response(serializer.data)
 
     elif request.method == 'POST': 
+        if not request.user.has_perm('app.add_director'):
+            raise PermissionDenied("You do not have permission to add a director.")
         serializer = directorSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -213,6 +221,8 @@ def studio_list(request):
         return Response(serializer.data)
 
     elif request.method == 'POST': 
+        if not request.user.has_perm('app.add_studio'):
+            raise PermissionDenied("You do not have permission to add a studio.")
         serializer = studioSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -260,6 +270,22 @@ def movie_detail_html(request, id):
 
     return render(request, "folder_aplikacji/movie/detail.html", {'movie': movie})
 
+@login_required
+@permission_required('folder_aplikacji.view_series')
+def series_list_html(request):
+    series = Series.objects.all()
+    return render(request, 
+                  "folder_aplikacji/series/list.html", 
+                  {'series': series})
+
+def series_detail_html(request, id):
+    try:
+        series = Series.objects.get(id=id)
+    except Series.DoesNotExist:
+        raise Http404("Series with given ID does not exist")
+
+    return render(request, "folder_aplikacji/series/detail.html", {'series': series})
+
     
 class monthlyMovies(APIView):
     permission_classes = [IsAuthenticated]
@@ -270,6 +296,17 @@ class monthlyMovies(APIView):
             return Response({"message": "No new movies this month"}, status=status.HTTP_404_NOT_FOUND)
         
         serializer = movieSerializer(movies, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class monthlySerieses(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        current_month = timezone.now().month  
+        series = Series.objects.filter(date_watched=current_month)  
+        if not series.exists():
+            return Response({"message": "No new serieses this month"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = seriesSerializer(series, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 @api_view(['POST'])

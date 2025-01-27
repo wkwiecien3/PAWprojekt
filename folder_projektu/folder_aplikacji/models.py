@@ -61,7 +61,7 @@ class Studio(models.Model):
         ordering = ["name"]
 
 class Movie(models.Model):
-    name = models.CharField(max_length=60)
+    name = models.CharField(max_length=60, blank = False, null = False)
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True, blank=True)   
     studio = models.ForeignKey(Studio, on_delete=models.SET_NULL, null=True, blank=True)
     director =  models.ForeignKey(Director, on_delete=models.SET_NULL, null=True, blank=True)
