@@ -261,13 +261,16 @@ def movie_detail_html(request, id):
     return render(request, "folder_aplikacji/movie/detail.html", {'movie': movie})
 
     
-@api_view(['GET'])
-def monthly_movies(request):
-    current_month = timezone.now().month
-    movies = Movie.objects.filter(date_watched=current_month, creator = request.user)
-    serializer = movieSerializer(movies, many=True)
-    return Response(serializer.data)
-
+class monthlyMovies(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        current_month = timezone.now().month  
+        movies = Movie.objects.filter(date_watched=current_month, creator=request.user)  
+        if not movies.exists():
+            return Response({"message": "No new movies this month"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = movieSerializer(movies, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 @api_view(['POST'])
 def register(request):
